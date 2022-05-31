@@ -17,7 +17,6 @@ class HomeViewController: UIViewController {
     private let postPath: CollectionReference = Firestore.firestore().collection(Const.PostPath)
     private var postArray: [PostData] = []
     private var listener: ListenerRegistration?
-    private var currentUser: User?
     
     // MARK: - LifeCycle
     override func viewDidLoad() {
@@ -29,14 +28,13 @@ class HomeViewController: UIViewController {
         // カスタムセルを登録
         let nib = UINib(nibName: "PostTableViewCell", bundle: nil)
         self.tableView.register(nib, forCellReuseIdentifier: "Cell")
-        self.currentUser = Auth.auth().currentUser
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("DEBUG_PRINT: viewWillAppear")
         // ログイン済みか確認
-        if self.currentUser != nil {
+        if Auth.auth().currentUser != nil {
             // listenerを登録して投稿データの更新を監視する
             let postsRef = self.postPath.order(by: "date", descending: true)
             self.listener = postsRef.addSnapshotListener() { (querySnapshot, error) in
@@ -84,7 +82,7 @@ class HomeViewController: UIViewController {
         let postData = self.postArray[indexPath.row]
         
         // likesを更新
-        if let myid = self.currentUser?.uid {
+        if let myid = Auth.auth().currentUser?.uid {
             // 更新データを作成
             var updateValue: FieldValue
             if postData.isLiked {
